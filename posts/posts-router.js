@@ -40,32 +40,45 @@ router.get('/:id', (req, res) => {
   
   // console.log(db.findById(id));
 
-  return (!db.findById(id)) // Not getting 404 message when requesting invalid id
-    ? res.status(404).json({ message: "The post with the specified ID does not exist." })
-    : db
-      .findById(id)
-      .then(post => {
-        res.status(200).json(post);
-      })
-      .catch(err => {
-        res.status(500).json({ error: "The post information could not be retrieved." });
-      })
+  // return (!db.findById(id)) // Not getting 404 message when requesting invalid id
+  //   ? res.status(404).json({ message: "The post with the specified ID does not exist." })
+  //   : db
+  //     .findById(id)
+  //     .then(post => {
+  //       res.status(200).json(post);
+  //     })
+  //     .catch(err => {
+  //       res.status(500).json({ error: "The post information could not be retrieved." });
+  //     })
+
+  db.findById(id)
+    .then(post => {
+      return !post[0]
+        ? res.status(404).json({ message: "The post with the specified ID does not exist." })
+        : res.status(200).json(post);
+    })
+    .catch(err => {
+      res.status(500).json({ error: "The post information could not be retrieved." });
+    })
 });
 
 // DELETE -> /api/posts/:id
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
 
-  return (!db.findById(id)) // Not getting 404 message when requesting invalid id
-    ? res.status(404).json({ message: "The post with the specified ID does not exist." })
-    : db
-      .remove(id)
-      .then(post => {
-        res.status(200).json(post);
-      })
-      .catch(err => {
-        res.status(500).json({ error: "The post could not be removed." });
-      })
+  db.findById(id)
+  .then(post => {
+    return !post[0]
+      ? res.status(404).json({ message: "The post with the specified ID does not exist." })
+      : db
+        .remove(id)
+        .then(post => {
+          res.status(200).json(post);
+        });
+  })
+  .catch(err => {
+    res.status(500).json({ error: "The post information could not be retrieved." });
+  })
 });
 
 // PUT -> /api/posts/:id
@@ -73,18 +86,21 @@ router.put('/:id', (req, res) => {
   const { id } = req.params;
   const post = req.body;
 
-  return (!db.findById(id)) // Not getting 404 message when requesting invalid id
-    ? res.status(404).json({ message: "The post with the specified ID does not exist." })
-    : db
-      .update(id, post)
-      .then(updated => {
-        return (!updated || !post.title || !post.contents)
+  db.findById(id)
+  .then(item => {
+    return !item[0]
+      ? res.status(404).json({ message: "The post with the specified ID does not exist." })
+      : db
+        .update(id, post)
+        .then(updated => {
+          return (!updated || !post.title || !post.contents)
           ? res.status(400).json({ errorMessage: "Please provide title and contents for the post." })
           : res.status(200).json(post);
-      })
-      .catch(err => {
-        res.status(500).json({ error: "The post information could not be modified." });
-      })
+        });
+  })
+  .catch(err => {
+    res.status(500).json({ error: "The post information could not be modified." });
+  })
 });
 
 module.exports = router;
