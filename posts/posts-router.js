@@ -57,7 +57,7 @@ router.delete('/:id', (req, res) => {
   return (!db.findById(id)) // Not getting 404 message when requesting invalid id
     ? res.status(404).json({ message: "The post with the specified ID does not exist." })
     : db
-      .findById(id)
+      .remove(id)
       .then(post => {
         res.status(200).json(post);
       })
